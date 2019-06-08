@@ -168,8 +168,13 @@ NSString* INFO_VOLUME_CHANGED = @"(NATIVE AUDIO) Volume changed.";
 
     [self.commandDelegate runInBackground:^{
         if (existingReference == nil) {
-            NSString* basePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"www"];
-            NSString* path = [NSString stringWithFormat:@"%@/%@", basePath, assetPath];
+            
+            // Directly using assetPath to enable playing files downloaded using fileTransfer
+            
+            // NSString* basePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"www"];
+            // NSString* path = [NSString stringWithFormat:@"%@/%@", basePath, assetPath];
+            NSString* path = assetPath;
+            NSLog( @"[NATIVEAUDIO] - file path = %@", path);
 
             if ([[NSFileManager defaultManager] fileExistsAtPath : path]) {
                 NativeAudioAsset* asset = [[NativeAudioAsset alloc] initWithPath:path
