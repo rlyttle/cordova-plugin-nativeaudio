@@ -517,4 +517,40 @@ static void (mySystemSoundCompletionProc)(SystemSoundID ssID,void* clientData)
     }];
 }
 
+- (void) getPosition:(CDVInvokedUrlCommand*)command;
+{
+    [self.commandDelegate runInBackground:^{
+        CDVPluginResult* pluginResult;
+        NSString* callbackID = command.callbackId;
+        NSString *audioID = [command.arguments objectAtIndex:0];
+
+        if ( audioMapping )
+        {
+            float seconds = -1;
+            NSObject* asset = [audioMapping objectForKey: audioID];
+            if ([asset isKindOfClass:[NativeAudioAsset class]])
+            {
+                NativeAudioAsset *_asset = (NativeAudioAsset*) asset;
+                // Send back as miliseconds to be consistent.
+                // TODO cast to double ?
+                seconds = [_asset getPosition] * 1000;
+            }
+            else if ( [asset isKindOfClass:[NSNumber class]] )
+            {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: ERROR_TYPE_RESTRICTED];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+            }
+
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt: seconds];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+        }
+        else
+        {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: ERROR_REFERENCE_MISSING];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+        }
+    }];
+}
+
+
 @end

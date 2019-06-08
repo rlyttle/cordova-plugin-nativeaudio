@@ -32,6 +32,8 @@
 - (void) setVolumeForComplexAsset:(CDVInvokedUrlCommand *)command;
 - (void) addCompleteListener:(CDVInvokedUrlCommand *)command;
 
+- (void) getPosition:(CDVInvokedUrlCommand*)command;
+
 - (void) parseOptions:(NSDictionary*) options;
 
 @end

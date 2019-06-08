@@ -54,6 +54,12 @@ static const CGFloat FADE_DELAY = 0.08;
     playIndex = playIndex % [voices count];
 }
 
+- (float) getPosition
+{
+    AVAudioPlayer * player = [voices objectAtIndex:playIndex];
+    return player.currentTime;
+}
+
 
 - (void) pause
 {
