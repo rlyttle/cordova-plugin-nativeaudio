@@ -24,6 +24,7 @@ NSString* INFO_PLAYBACK_PLAY = @"(NATIVE AUDIO) Play";
 NSString* INFO_PLAYBACK_STOP = @"(NATIVE AUDIO) Stop";
 NSString* INFO_PLAYBACK_LOOP = @"(NATIVE AUDIO) Loop.";
 NSString* INFO_VOLUME_CHANGED = @"(NATIVE AUDIO) Volume changed.";
+NSString* PAUSE_REQUESTED = @"PAUSE REQUESTED";
 
 - (void)pluginInitialize
 {
@@ -170,7 +171,7 @@ NSString* INFO_VOLUME_CHANGED = @"(NATIVE AUDIO) Volume changed.";
         if (existingReference == nil) {
             
             // Directly using assetPath to enable playing files downloaded using fileTransfer
-            
+
             // NSString* basePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"www"];
             // NSString* path = [NSString stringWithFormat:@"%@/%@", basePath, assetPath];
             NSString* path = assetPath;
@@ -243,6 +244,43 @@ NSString* INFO_VOLUME_CHANGED = @"(NATIVE AUDIO) Volume changed.";
 
             NSString *RESULT = [NSString stringWithFormat:@"%@ (%@)", ERROR_REFERENCE_MISSING, audioID];
             [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: RESULT] callbackId:callbackId];
+        }
+    }];
+}
+
+
+- (void) pause:(CDVInvokedUrlCommand*)command;
+{
+        [self.commandDelegate runInBackground:^{
+        CDVPluginResult* pluginResult;
+        NSString* callbackID = command.callbackId;
+        NSString *audioID = [command.arguments objectAtIndex:0];
+
+        NSLog( @"[NATIVEAUDIO] - pause 1");
+        if ( audioMapping )
+        {
+            NSLog( @"[NATIVEAUDIO] - pause 2");
+            NSObject* asset = [audioMapping objectForKey: audioID];
+            if ([asset isKindOfClass:[NativeAudioAsset class]])
+            {
+                NSLog( @"[NATIVEAUDIO] - pause 3");
+                NativeAudioAsset *_asset = (NativeAudioAsset*) asset;
+                [_asset pause];
+
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString: PAUSE_REQUESTED];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+            }
+            else if ( [asset isKindOfClass:[NSNumber class]] )
+            {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: ERROR_TYPE_RESTRICTED];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
+            }
+
+        }
+        else
+        {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: ERROR_REFERENCE_MISSING];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackID];
         }
     }];
 }
